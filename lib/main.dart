@@ -32,8 +32,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  BoxDecoration status = letterDecorationNotFound;
-
   String letter1 = '';
   String letter2 = '';
   String letter3 = '';
@@ -48,13 +46,20 @@ class _MyHomePageState extends State<MyHomePage> {
     'letter_5': "N",
   };
 
+  Map<String,BoxDecoration> mapLettersDecoration = {
+    'letter_1': letterDecorationNotFound,
+    'letter_2': letterDecorationNotFound,
+    'letter_3': letterDecorationNotFound,
+    'letter_4': letterDecorationNotFound,
+    'letter_5': letterDecorationNotFound,
+  };
 
-  void evaluateLetter({String? res, int? index}) {
 
+  void evaluateLetter({String? res, String? target}) {
     setState(() {
-      if(res == 'found') status = letterDecorationFoundRightPosition;
-      if(res == 'notFound') status = letterDecorationNotFound;
-      if(res == 'wrongPosition') status = letterDecorationFoundWrongPosition;
+      if(res == 'found') mapLettersDecoration[target!] = letterDecorationFoundRightPosition;
+      if(res == 'notFound') mapLettersDecoration[target!] = letterDecorationNotFound;
+      if(res == 'wrongPosition') mapLettersDecoration[target!] = letterDecorationFoundWrongPosition;
     });
   }
 
@@ -63,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80.0,
         title: Text(
             widget.title,
           style: const TextStyle(
@@ -85,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 60.0,
               height: 60.0,
               padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-              decoration: status,
+              decoration: mapLettersDecoration['letter_1'],
               child: Text(
                 mapLetters['letter_1']!,
                 textAlign: TextAlign.center,
@@ -102,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 60.0,
                 height: 60.0,
                 padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-                decoration: status,
+                decoration: mapLettersDecoration['letter_2'],
                 child: Text(
                   mapLetters['letter_2']!,
                   textAlign: TextAlign.center,
@@ -119,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 60.0,
                 height: 60.0,
                 padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-                decoration: status,
+                decoration: mapLettersDecoration['letter_3'],
                 child: Text(
                   mapLetters['letter_3']!,
                   textAlign: TextAlign.center,
@@ -136,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 60.0,
                 height: 60.0,
                 padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-                decoration: status,
+                decoration: mapLettersDecoration['letter_4'],
                 child: Text(
                   mapLetters['letter_4']!,
                   textAlign: TextAlign.center,
@@ -153,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 60.0,
                 height: 60.0,
                 padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-                decoration: status,
+                decoration: mapLettersDecoration['letter_5'],
                 child: Text(
                   mapLetters['letter_5']!,
                   textAlign: TextAlign.center,
@@ -174,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               ElevatedButton(
-                onPressed: () => evaluateLetter(res: 'notFound', index: 1),
+                onPressed: () => evaluateLetter(res: 'notFound', target: 'letter_2'),
                 style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.blueGrey)
                 ),
@@ -185,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(width: 20.0),
 
               ElevatedButton(
-                onPressed: () => evaluateLetter(res: 'wrongPosition', index: 1),
+                onPressed: () => evaluateLetter(res: 'wrongPosition', target: 'letter_2'),
                 style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.blueGrey)
                 ),
@@ -196,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(width: 20.0),
 
               ElevatedButton(
-                onPressed: () => evaluateLetter(res: 'found', index: 1),
+                onPressed: () => evaluateLetter(res: 'found', target: 'letter_2'),
                 style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.blueGrey)
                 ),

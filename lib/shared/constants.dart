@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 // Decoration of the letter containers
+// -----------------------------------
 
 // Letter not found
 BoxDecoration letterDecorationNotFound = BoxDecoration(
@@ -12,7 +13,7 @@ BoxDecoration letterDecorationNotFound = BoxDecoration(
     borderRadius: BorderRadius.circular(12)
 );
 
-// Letter not found
+// Letter not found in the right position
 BoxDecoration letterDecorationFoundWrongPosition = BoxDecoration(
     color: Colors.red,
     border: Border.all(
