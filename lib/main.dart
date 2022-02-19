@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(
             widget.title,
           style: const TextStyle(
-            fontSize: 60.0,
+            fontSize: 50.0,
           ),
         ),
         elevation: 0.0,
