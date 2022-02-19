@@ -32,13 +32,29 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  bool status = false;
-  String letter = 'P';
+  BoxDecoration status = letterDecorationNotFound;
 
-  void changeLetter() {
+  String letter1 = '';
+  String letter2 = '';
+  String letter3 = '';
+  String letter4 = '';
+  String letter5 = '';
+
+  Map<String,String> mapLetters = {
+    'letter_1': "L",
+    'letter_2': "A",
+    'letter_3': "P",
+    'letter_4': "I",
+    'letter_5': "N",
+  };
+
+
+  void evaluateLetter({String? res, int? index}) {
+
     setState(() {
-      letter = 'V';
-      status = true;
+      if(res == 'found') status = letterDecorationFoundRightPosition;
+      if(res == 'notFound') status = letterDecorationNotFound;
+      if(res == 'wrongPosition') status = letterDecorationFoundWrongPosition;
     });
   }
 
@@ -56,35 +72,139 @@ class _MyHomePageState extends State<MyHomePage> {
         elevation: 0.0,
       ),
       body: Column(
-        children: <Widget>[Container(
+        children: <Widget>[
+          Container(
           padding: const EdgeInsets.all(20.0),
-          alignment: Alignment.topCenter,
           color: Colors.black,
-          child: Container(
-            width: 60.0,
-            height: 70.0,
-            padding: EdgeInsets.all(10.0),
-            decoration: status ? letterDecorationFound : letterDecorationNeutral,
-            child: Text(
-              letter,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 40.0,
-                color: Colors.white,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              // Letter #1
+              Container(
+              width: 60.0,
+              height: 60.0,
+              padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
+              decoration: status,
+              child: Text(
+                mapLetters['letter_1']!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 40.0,
+                  color: Colors.white,
+                ),
               ),
             ),
+              SizedBox(width: 10.0),
+
+              // Letter #2
+              Container(
+                width: 60.0,
+                height: 60.0,
+                padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
+                decoration: status,
+                child: Text(
+                  mapLetters['letter_2']!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 40.0,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.0),
+
+              // Letter #3
+              Container(
+                width: 60.0,
+                height: 60.0,
+                padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
+                decoration: status,
+                child: Text(
+                  mapLetters['letter_3']!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 40.0,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.0),
+
+              // Letter #4
+              Container(
+                width: 60.0,
+                height: 60.0,
+                padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
+                decoration: status,
+                child: Text(
+                  mapLetters['letter_4']!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 40.0,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.0),
+
+              // Letter #5
+              Container(
+                width: 60.0,
+                height: 60.0,
+                padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
+                decoration: status,
+                child: Text(
+                  mapLetters['letter_5']!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 40.0,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
+            ],
           ),
         ),
         SizedBox(height: 20.0),
 
-          ElevatedButton(
-            onPressed: () => changeLetter(),
-            style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.blueGrey)
-            ),
-            child: const Text(
-              'Update',
-            ),
+          // Action buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () => evaluateLetter(res: 'notFound', index: 1),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.blueGrey)
+                ),
+                child: const Text(
+                  'Not Found',
+                ),
+              ),
+              SizedBox(width: 20.0),
+
+              ElevatedButton(
+                onPressed: () => evaluateLetter(res: 'wrongPosition', index: 1),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.blueGrey)
+                ),
+                child: const Text(
+                  'Wrong',
+                ),
+              ),
+              SizedBox(width: 20.0),
+
+              ElevatedButton(
+                onPressed: () => evaluateLetter(res: 'found', index: 1),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.blueGrey)
+                ),
+                child: const Text(
+                  'Found',
+                ),
+              ),
+          ]
           ),
         ]
       ),
