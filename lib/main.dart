@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motus/shared/constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,9 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Motus',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primarySwatch: Colors.blueGrey,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page !!!!'),
+      home: const MyHomePage(title: 'Motus'),
     );
   }
 }
@@ -30,11 +31,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
+  bool status = false;
+  String letter = 'P';
+
+  void changeLetter() {
     setState(() {
-      _counter++;
+      letter = 'V';
+      status = true;
     });
   }
 
@@ -43,26 +47,46 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+        title: Text(
+            widget.title,
+          style: const TextStyle(
+            fontSize: 60.0,
+          ),
         ),
+        elevation: 0.0,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      body: Column(
+        children: <Widget>[Container(
+          padding: const EdgeInsets.all(20.0),
+          alignment: Alignment.topCenter,
+          color: Colors.black,
+          child: Container(
+            width: 60.0,
+            height: 70.0,
+            padding: EdgeInsets.all(10.0),
+            decoration: status ? letterDecorationFound : letterDecorationNeutral,
+            child: Text(
+              letter,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 40.0,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 20.0),
+
+          ElevatedButton(
+            onPressed: () => changeLetter(),
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.blueGrey)
+            ),
+            child: const Text(
+              'Update',
+            ),
+          ),
+        ]
       ),
     );
   }
