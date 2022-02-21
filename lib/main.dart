@@ -34,16 +34,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  // Current try
+  var tryNum = 1;
+
   void evaluateLetter({String? result, String? ref}) {
 
     setState(() {
-      if (result == 'found') {
+      if (result == 'OK') {
         mapSquareDecoration[ref!] = letterDecorationFoundRightPosition;
       }
-      if (result == 'notFound') {
+      if (result == 'KO') {
         mapSquareDecoration[ref!] = letterDecorationNotFound;
       }
-      if (result == 'wrongPosition') {
+      if (result == 'MP') {
         mapSquareDecoration[ref!] = letterDecorationFoundWrongPosition;
       }
 
@@ -63,6 +66,118 @@ class _MyHomePageState extends State<MyHomePage> {
     return lst;
   }
 
+  checkResult() {
+
+    // Procedure used to compare two words and to give ths status of the different letters
+    // ***********************************************************************************
+
+
+    // Initialization of variables
+    // ---------------------------
+
+    String word = "nepal".toUpperCase();
+    String proposition = "lapin".toUpperCase();
+    //String proposition = "penal".toUpperCase();
+
+    List<String> wordLettersList = []; // List used to store each letters of the word to be found
+    List<String> propositionLettersList = []; // List used to store each letters of the player proposition
+    List<String> result = []; // List which will hold the results of the comparison process
+
+    // Creating lists of letters which can be compared
+    wordLettersList = word.split("");
+    propositionLettersList = proposition.split("");
+
+    print("");
+    print("Word to be found: $wordLettersList");
+    print("Player proposition: $propositionLettersList");
+
+    // Comparison process
+    // ------------------
+
+    List ctrlWordLettersList = wordLettersList.sublist(0); // Working copy of the word list
+    List ctrlPropositionLettersList = propositionLettersList.sublist(0); // Working copy of the word list
+
+    // First iteration: looking for exact matches between word and proposition and remove them from the scope of the search
+    for(var i=0; i < wordLettersList.length; i++) {
+      result.add("?"); // Initialisation of the list of results with default values
+      if(ctrlWordLettersList[i] == ctrlPropositionLettersList[i]) { // if exact match...
+        ctrlWordLettersList[i] =  ctrlPropositionLettersList[i] = "!"; // ...then remove from ths scope of the search
+        result[i] = "OK";
+      }
+    }
+
+    // Second iteration: looking for misplaced or wrong letters in the proposition
+    for(var i=0; i < wordLettersList.length; i++) {
+      if(ctrlPropositionLettersList[i] != "!") { // Making sure the current letter has not been marked as an exact macth in iteration 1
+        if(ctrlWordLettersList.contains(ctrlPropositionLettersList[i])) { // if current letter is misplaced...
+          ctrlWordLettersList[ctrlWordLettersList.indexOf(ctrlPropositionLettersList[i])] = "!"; // ...then marking the case as "treated"
+          result[i] = "MP";
+        } else {
+          result[i] = "KO";
+        }
+      }
+    }
+
+    // Debug...
+    /*
+  print("");
+  print("Post treatment results");
+  print("Word list $ctrlWordLettersList");
+  print("Propositions list $ctrlPropositionLettersList");
+  print("Result list $result");
+  */
+
+    // Displaying process result in console
+    // ------------------------------------
+
+    print("");
+    print("RESULTS");
+    print("\t\t #1 \t #2 \t #3 \t #4 \t #5");
+    print("Word\t\t ${wordLettersList[0]} \t ${wordLettersList[1]} \t ${wordLettersList[2]} \t ${wordLettersList[3]} \t ${wordLettersList[4]}");
+    print("\t\t | \t | \t | \t | \t |");
+    print("Proposition\t ${propositionLettersList[0]} \t ${propositionLettersList[1]} \t ${propositionLettersList[2]} \t ${propositionLettersList[3]} \t ${propositionLettersList[4]}");
+    print("\t\t | \t | \t | \t | \t |");
+    print("Result\t\t ${result[0]} \t ${result[1]} \t ${result[2]} \t ${result[3]} \t ${result[4]}");
+    print("");
+
+    // Decorating squares after results calculation
+    decorateSquare(result, propositionLettersList);
+
+  }
+
+  decorateSquare(result, propositionLettersList) {
+
+    // Function used to decorate the squares after check
+
+    String index;
+
+    setState(() {
+
+      for(var i=0; i<5; i++) {
+
+        index = tryNum.toString() + (i+1).toString();
+
+        mapLetterValue[index] = propositionLettersList[i];
+
+        if (result[i] == 'OK') {
+          mapSquareDecoration[index] = letterDecorationFoundRightPosition;
+        }
+        if (result[i] == 'KO') {
+          mapSquareDecoration[index] = letterDecorationNotFound;
+        }
+        if (result[i] == 'MP') {
+          mapSquareDecoration[index] = letterDecorationFoundWrongPosition;
+        }
+
+      }
+
+      tryNum++;
+
+    });
+
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body:
       Container(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(10.0),
         color: Colors.grey[800],
         child: Column(
           children: [
@@ -137,7 +252,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: <Widget>[
                   ElevatedButton(
                     onPressed: () =>
-                       evaluateLetter(result: 'notFound', ref:'25'),
+                       evaluateLetter(result: 'KO', ref:'14'),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
                             Colors.blueGrey)
@@ -150,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   ElevatedButton(
                     onPressed: () =>
-                        evaluateLetter(result: 'wrongPosition', ref:'25'),
+                        evaluateLetter(result: 'MP', ref:'14'),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
                             Colors.blueGrey)
@@ -163,7 +278,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   ElevatedButton(
                     onPressed: () =>
-                        evaluateLetter(result:'found', ref:'12'),
+                        evaluateLetter(result:'OK', ref:'12'),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
                             Colors.blueGrey)
@@ -174,6 +289,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ]
             ),
+
+            ElevatedButton(
+              onPressed: (tryNum < 7) ? checkResult : null,
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                      Colors.blueGrey)
+              ),
+              child: const Text(
+                'Check',
+              ),
+            ),
+
           ],
 
         ),
