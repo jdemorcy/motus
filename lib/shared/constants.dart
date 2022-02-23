@@ -15,7 +15,7 @@ BoxDecoration letterDecorationNotFound = BoxDecoration(
 
 // Letter not found in the right position
 BoxDecoration letterDecorationFoundWrongPosition = BoxDecoration(
-    color: Colors.red,
+    color: Colors.orange,
     border: Border.all(
       color: Colors.grey,
       width: 1,
@@ -39,11 +39,11 @@ BoxDecoration letterDecorationFoundRightPosition = BoxDecoration(
 
 Map<String,String> mapLetterValue = {
 
-  '11': 'L',
-  '12': 'A',
-  '13': 'P',
-  '14': 'I',
-  '15': 'N',
+  '11': '',
+  '12': '',
+  '13': '',
+  '14': '',
+  '15': '',
 
   '21': '',
   '22': '',
