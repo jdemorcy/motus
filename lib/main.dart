@@ -28,6 +28,7 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -35,7 +36,79 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   // Current try
-  var tryNum = 1;
+  int tryNum = 1;
+
+  String proposition = '';
+
+  // Form related variables
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String message = '';
+  final myController = TextEditingController();
+  late FocusNode myFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+
+    myController.addListener(checkInputField);
+
+    myFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    myController.dispose();
+
+    // Clean up the focus node when the Form is disposed.
+    myFocusNode.dispose();
+
+    super.dispose();
+  }
+
+  checkInputField() {
+    // Checking form field input length to prevent player to type more than 5 characters
+    if(myController.text.length > 5) {
+      myController.text = myController.text.substring(0,5);
+      setState(() {
+        _showInSnackBar("Proposition must be 5 (alphabetic) characters long !");
+      });
+    }
+  }
+
+  formValidation() {
+    var reg = RegExp(r'^[a-zA-Z]{5}$');
+    if(myController.text.length != 5 || !reg.hasMatch(myController.text)) {
+      setState(() {
+        _showInSnackBar("Proposition must be 5 (alphabetic) characters long !");
+      });
+    } else {
+      proposition = myController.text.toUpperCase();
+      myController.text = '';
+      myFocusNode.unfocus();
+      checkResult();
+    }
+
+  }
+
+  void _showInSnackBar(message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: GestureDetector(
+          onTap: () {},
+          child: Text(
+            message,
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
+        ),
+        duration: (Duration(seconds: 4)),
+        elevation: 0,
+        backgroundColor: Colors.black,
+      ),
+    );
+  }
+
+
 
   void evaluateLetter({String? result, String? ref}) {
 
@@ -76,8 +149,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // ---------------------------
 
     String word = "nepal".toUpperCase();
-    String proposition = "lapin".toUpperCase();
-    //String proposition = "penal".toUpperCase();
 
     List<String> wordLettersList = []; // List used to store each letters of the word to be found
     List<String> propositionLettersList = []; // List used to store each letters of the player proposition
@@ -117,15 +188,6 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
     }
-
-    // Debug...
-    /*
-  print("");
-  print("Post treatment results");
-  print("Word list $ctrlWordLettersList");
-  print("Propositions list $ctrlPropositionLettersList");
-  print("Result list $result");
-  */
 
     // Displaying process result in console
     // ------------------------------------
@@ -178,25 +240,163 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 80.0,
-        title: Text(
-          widget.title,
-          style: const TextStyle(
-            fontSize: 50.0,
+    return GestureDetector(
+      onTap: () {
+        FocusScopeNode currentFocus = FocusScope.of(context);
+
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 80.0,
+          title: Text(
+            widget.title,
+            style: const TextStyle(
+              fontSize: 50.0,
+            ),
           ),
+          elevation: 0.0,
         ),
-        elevation: 0.0,
+          body: Container(
+            color: Colors.grey[800],
+            padding: const EdgeInsets.all(10.0),
+
+            child: Column(
+              children: [
+                // FORM
+                Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: Form(
+                  key: _formKey,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                    SizedBox(
+                      width: 250.0,
+                      child: Container(
+                        child: TextFormField( // Proposition
+                          focusNode: myFocusNode,
+                          decoration: textInputDecoration.copyWith(hintText: ''),
+                          controller: myController,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(width: 20.0),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        formValidation();
+                      },
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              Colors.blueGrey)
+                      ),
+                      child: const Text(
+                        'Check !',
+                        style: TextStyle(
+                          fontSize: 18.0
+                        ),
+                      ),
+                    ),
+
+                  ]),
+              ),
+                ),
+
+              SizedBox(height: 20.0),
+
+              // Grid
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: printRow(rowNum: 1),
+                ),
+
+                SizedBox(height: 20.0),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: printRow(rowNum: 2),
+                ),
+
+                SizedBox(height: 20.0),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: printRow(rowNum: 3),
+                ),
+
+                SizedBox(height: 20.0),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: printRow(rowNum: 4),
+                ),
+
+                SizedBox(height: 20.0),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: printRow(rowNum: 5),
+                ),
+
+                SizedBox(height: 20.0),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: printRow(rowNum: 6),
+                ),
+
+              ]),
+
+          ),
+
+
       ),
-      body:
-      Container(
+    );
+  }
+}
+
+/*
+Container(
         padding: const EdgeInsets.all(10.0),
         color: Colors.grey[800],
         child: Column(
           children: [
+            // Input form field
+            Row(
+              children: <Widget>[
+                Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        SizedBox(height: 20.0, width: 300.0),
+                        TextFormField( // email
+                          decoration: textInputDecoration.copyWith(hintText: 'Email'),
+                          validator: (val) => val!.isEmpty ? 'Enter an email' : null,
+                        ),
+                      ],
+                    ),
+
+                )
+
+              ]
+
+            ),
+
             // Grid
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -246,7 +446,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
             SizedBox(height: 20.0),
 
-            // Buttons
+
+            ElevatedButton(
+              onPressed: (tryNum < 7) ? checkResult : null,
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                      Colors.blueGrey)
+              ),
+              child: const Text(
+                'Check',
+              ),
+            ),
+
+          ],
+
+        ),
+      ),
+ */
+
+
+
+/*
+// Buttons
             Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -289,23 +510,4 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ]
             ),
-
-            ElevatedButton(
-              onPressed: (tryNum < 7) ? checkResult : null,
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                      Colors.blueGrey)
-              ),
-              child: const Text(
-                'Check',
-              ),
-            ),
-
-          ],
-
-        ),
-      ),
-
-    );
-  }
-}
+ */
