@@ -9,6 +9,7 @@ class RowBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('grid builder ran');
     return Container(
       width: 60.0,
       height: 60.0,
