@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:motus/shared/constants.dart';
+import 'package:firebase/firebase_io.dart';
+import 'dart:math';
 
 class FormBuilder extends StatefulWidget {
 
@@ -17,8 +20,12 @@ class _FormBuilderState extends State<FormBuilder> {
   int tryNum = 1;
   // Check whether player has won or not
   bool playerHasWon = false;
-  // Word to be found
-  String word = "lapin".toUpperCase();
+  // Word to be found (capitalized)
+  String wordAllCaps = '';
+  // Word to be found (small cap with accents)
+  String wordSmallCaps = '';
+  // Wikitionnaire url
+  String wikiUrl = 'https://fr.wiktionary.org/wiki';
   // Player proposition
   String proposition = '';
   // Form field controller
@@ -33,6 +40,8 @@ class _FormBuilderState extends State<FormBuilder> {
     myController.addListener(checkInputField);
     // Object used to control the focus on the form field and thus the display of the keyboard
     myFocusNode = FocusNode();
+    // Getting first word
+    getWordToFind();
   }
 
   @override
@@ -42,6 +51,33 @@ class _FormBuilderState extends State<FormBuilder> {
     // Clean up the focus node when the Form is disposed.
     myFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getWordToFind() async {
+    print('-- getWordToFind ran');
+    FirebaseClient fbClient = FirebaseClient.anonymous();
+    Map<String,dynamic> response;
+    String path;
+
+    // Getting number of words available from the param collection
+    path = 'https://motus-12db3-default-rtdb.europe-west1.firebasedatabase.app/param.json';
+    response = await fbClient.get(path);
+    int count = response['count'];
+    print('# of words: $count');
+
+    // Generating random number
+    Random random = Random();
+    int randomNumber = random.nextInt(count-1) + 1; // from 1 to count
+
+    path = 'https://motus-12db3-default-rtdb.europe-west1.firebasedatabase.app/words/$randomNumber/word.json';
+    response = await fbClient.get(path);
+
+    response.forEach((key, value) {
+      wordAllCaps = key;
+      wordSmallCaps = value;
+    });
+
+    print('random word #$randomNumber: $wordAllCaps');
   }
 
   void checkInputField() {
@@ -55,19 +91,36 @@ class _FormBuilderState extends State<FormBuilder> {
     }
   }
 
-  formValidation() {
+  Future<void> formValidation() async {
     // Validation of the content of the form field
     var reg = RegExp(r'^[a-zA-Z]{5}$');
+    // We first check that form field input is valid
     if(myController.text.length != 5 || !reg.hasMatch(myController.text)) {
       setState(() {
         _showInSnackBar("Proposition must be 5 (alphabetic) characters long (accented characters are not allowed) !");
       });
     } else {
+      // We then check that player proposition is a valid word
+      FirebaseClient fbClient = FirebaseClient.anonymous();
+      Map<String, dynamic> response = {};
       proposition = myController.text.toUpperCase();
-      myController.text = '';
-      myFocusNode.unfocus();
-      // If player proposition is valid, we launch the evaluation of the proposition
-      checkResult();
+      String wordToBeChecked = proposition;
+      var path = 'https://motus-12db3-default-rtdb.europe-west1.firebasedatabase.app/check/$wordToBeChecked.json';
+
+      response = await fbClient.get(path) ?? response;
+      if(response.isEmpty) {
+        // If the proposed word has not been found in the DB
+        print('Word: $wordToBeChecked has not been found !');
+        setState(() {
+          _showInSnackBar("Proposition must be an existing word !");
+        });
+      } else {
+        // If the proposed word has been found in the DB -> proceed to the full check
+        print('Word $wordToBeChecked has been found ! ${response}');
+        myController.text = '';
+        myFocusNode.unfocus();
+        checkResult();
+      }
     }
   }
 
@@ -107,7 +160,7 @@ class _FormBuilderState extends State<FormBuilder> {
     List<String> result = []; // List which will hold the results of the comparison process
 
     // Creating lists of letters which can be compared
-    wordLettersList = word.split("");
+    wordLettersList = wordAllCaps.split("");
     propositionLettersList = proposition.split("");
 
 
@@ -212,7 +265,16 @@ class _FormBuilderState extends State<FormBuilder> {
 
   showAlertDialog(BuildContext context) {
 
-    // set up the button
+    // set up the wikitionnaire button
+    Widget wikiButton = TextButton(
+      child: Text("Show word def. in wikitionnaire"),
+      onPressed: () async {
+          var url = Uri.encodeFull('$wikiUrl/$wordSmallCaps');
+          await launch(url); // required a modification in AndroidManifest.xml in order to work
+        },
+    );
+
+    // set up the ok button
     Widget okButton = TextButton(
       child: Text("OK"),
       onPressed: () {
@@ -220,24 +282,24 @@ class _FormBuilderState extends State<FormBuilder> {
         Navigator.of(context, rootNavigator: true).pop();
         // Initiate new game
         newGame();
-        },
+      },
     );
 
     // set up the AlertDialog for winners
     AlertDialog alertPlayerWins = AlertDialog(
       title: Text("Good job !"),
-      content: Text("You found it ! ${word.toUpperCase()} was the word ! Click the button to start a new game."),
+      content: Text("You found it ! $wordAllCaps ($wordSmallCaps) was the word ! \n\nClick on the 'OK' button to start a new game."),
       actions: [
-        okButton,
+        wikiButton, okButton,
       ],
     );
 
     // set up the AlertDialog for losers
     AlertDialog alertPlayerLoses = AlertDialog(
       title: Text("Well..."),
-      content: Text("The word you were looking for was: ${word.toUpperCase()}... Click the button to start a new game."),
+      content: Text("The word you were looking for was: $wordAllCaps ($wordSmallCaps)... \n\nClick on the 'OK' button to start a new game."),
       actions: [
-        okButton,
+        wikiButton, okButton,
       ],
     );
 
@@ -258,6 +320,9 @@ class _FormBuilderState extends State<FormBuilder> {
     // Reinitialization of game variables
     tryNum = 1;
     playerHasWon = false;
+
+    // Picking a new word
+    getWordToFind();
 
     // Cleaning up the grid
     setState(() { // Forces the widget to be rebuilt
@@ -285,7 +350,7 @@ class _FormBuilderState extends State<FormBuilder> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                width: 250.0,
+                width: 200.0,
                 child: Container(
                   child: TextFormField( // Proposition
                     focusNode: myFocusNode,
@@ -306,9 +371,9 @@ class _FormBuilderState extends State<FormBuilder> {
                         Colors.blueGrey)
                 ),
                 child: const Text(
-                  'Check !',
+                  'Check',
                   style: TextStyle(
-                      fontSize: 18.0
+                      fontSize: 12.0
                   ),
                 ),
               ),
